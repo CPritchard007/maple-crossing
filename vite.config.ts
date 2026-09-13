@@ -77,6 +77,17 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /^https:\/\/api\.frankfurter\.dev\/.*/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "usd-cad-rate",
+              expiration: {
+                maxEntries: 4,
+                maxAgeSeconds: 60 * 60 * 24,
+              },
+            },
+          },
         ],
       },
     }),
@@ -94,6 +105,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/cbp-bwt/, ""),
       },
+      "/frankfurter": {
+        target: "https://api.frankfurter.dev",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/frankfurter/, ""),
+      },
     },
   },
   preview: {
@@ -102,6 +118,11 @@ export default defineConfig({
         target: "https://bwt.cbp.gov",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/cbp-bwt/, ""),
+      },
+      "/frankfurter": {
+        target: "https://api.frankfurter.dev",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/frankfurter/, ""),
       },
     },
   },

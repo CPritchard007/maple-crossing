@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import Button from "primevue/button";
+import Chip from "primevue/chip";
 import Menubar from "primevue/menubar";
 import { computed } from "vue";
 import type { MenuItem } from "primevue/menuitem";
 import type { AppView } from "../border";
 import type { Theme } from "../composables/useTheme";
+import { useUsdCadRate } from "../composables/useUsdCadRate";
 
 const props = defineProps<{
   theme: Theme;
@@ -16,6 +18,8 @@ const emit = defineEmits<{
   toggleTheme: [];
   selectView: [view: AppView];
 }>();
+
+const { quote, label, detail } = useUsdCadRate();
 
 const items = computed<MenuItem[]>(() => [
   {
@@ -44,14 +48,26 @@ const items = computed<MenuItem[]>(() => [
       <span class="app-topnav__brand">Maple Crossing</span>
     </template>
     <template #end>
-      <Button
-        :icon="props.theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
-        :aria-label="props.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
-        severity="secondary"
-        rounded
-        text
-        @click="emit('toggleTheme')"
-      />
+      <div class="app-topnav__actions">
+        <span v-if="quote" class="fx-chip-wrap" :title="detail">
+          <Chip
+            class="fx-chip"
+            :class="quote.sentiment === 'good' ? 'is-good' : 'is-bad'"
+            :label="detail"
+          >
+            <span class="fx-chip__pair">US$1 →</span>
+            <span class="fx-chip__value">{{ label }}</span>
+          </Chip>
+        </span>
+        <Button
+          :icon="props.theme === 'dark' ? 'pi pi-sun' : 'pi pi-moon'"
+          :aria-label="props.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          severity="secondary"
+          rounded
+          text
+          @click="emit('toggleTheme')"
+        />
+      </div>
     </template>
   </Menubar>
 </template>

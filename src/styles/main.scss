@@ -102,6 +102,55 @@ body {
   font-weight: 650;
 }
 
+.app-topnav__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.fx-chip.p-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  height: 1.85rem;
+  padding: 0 0.65rem;
+  border: 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.fx-chip.is-good {
+  background: color-mix(in srgb, #16a34a 18%, var(--control-bg));
+  color: #15803d;
+}
+
+.fx-chip.is-bad {
+  background: color-mix(in srgb, #ef4444 18%, var(--control-bg));
+  color: #b91c1c;
+}
+
+[data-theme="dark"] .fx-chip.is-good {
+  background: color-mix(in srgb, #22c55e 22%, var(--control-bg));
+  color: #86efac;
+}
+
+[data-theme="dark"] .fx-chip.is-bad {
+  background: color-mix(in srgb, #ef4444 24%, var(--control-bg));
+  color: #fca5a5;
+}
+
+.fx-chip__pair {
+  opacity: 0.72;
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .fx-chip__pair {
+    display: none;
+  }
+}
+
 .app-topnav .p-menubar-item.is-active > .p-menubar-item-content {
   background: color-mix(in srgb, var(--location) 16%, transparent);
 }

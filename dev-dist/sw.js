@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-25613826'], (function (workbox) { 'use strict';
+define(['./workbox-caf3a6a6'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -81,7 +81,7 @@ define(['./workbox-25613826'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.ctgmdgulq9"
+    "revision": "0.h4mvarc7028"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
@@ -98,6 +98,13 @@ define(['./workbox-25613826'], (function (workbox) { 'use strict';
     "cacheName": "tomtom-tiles",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 200,
+      maxAgeSeconds: 86400
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/api\.frankfurter\.dev\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "usd-cad-rate",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 4,
       maxAgeSeconds: 86400
     })]
   }), 'GET');
