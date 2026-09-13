@@ -1,0 +1,285 @@
+:root {
+  --page-bg: #f4f1ea;
+  --map-bg: #dce6de;
+  --ink: #243029;
+  --control-bg: #fffdf8;
+  --control-border: rgba(36, 48, 41, 0.12);
+  --control-ink: #243029;
+  --location: #1d6b4f;
+  --location-soft: rgba(47, 158, 115, 0.35);
+  color-scheme: light;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+[data-theme="dark"] {
+  --page-bg: #121511;
+  --map-bg: #0f1210;
+  --ink: #e8efe8;
+  --control-bg: #1c211d;
+  --control-border: rgba(232, 239, 232, 0.12);
+  --control-ink: #e8efe8;
+  --location: #5ee0a8;
+  --location-soft: rgba(94, 224, 168, 0.35);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: var(--page-bg);
+  color: var(--ink);
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.app-shell__map {
+  position: relative;
+}
+
+.app-shell__map,
+.map-view,
+.leaflet-container {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+}
+
+.leaflet-container {
+  background: var(--map-bg);
+  font: inherit;
+}
+
+.leaflet-control-attribution {
+  font-size: 11px;
+}
+
+[data-theme="dark"]:not([data-basemap="tomtom"]) .leaflet-baseTiles-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.92) saturate(0.65);
+}
+
+[data-theme="dark"] .leaflet-bar a,
+[data-theme="dark"] .leaflet-control-attribution {
+  background: var(--control-bg);
+  color: var(--control-ink);
+  border-color: var(--control-border);
+}
+
+[data-theme="dark"] .leaflet-bar a:hover {
+  background: #2a322c;
+}
+
+[data-theme="dark"] .leaflet-control-attribution a {
+  color: #8fd4b4;
+}
+
+.app-topnav.p-menubar {
+  border: 0;
+  border-bottom: 1px solid var(--control-border);
+  border-radius: 0;
+}
+
+.app-topnav__brand {
+  margin-right: 0.75rem;
+  font-weight: 650;
+}
+
+.app-topnav .p-menubar-item.is-active > .p-menubar-item-content {
+  background: color-mix(in srgb, var(--location) 16%, transparent);
+}
+
+.leaflet-bottom.leaflet-left {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.crossing-chart {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 1.7rem;
+  z-index: 500;
+  width: min(22.5rem, calc(100% - 4.5rem));
+  padding: 0.65rem 0.75rem 0.55rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--control-bg) 92%, transparent);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.crossing-chart__lead,
+.crossing-chart__meta,
+.crossing-chart__error {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.crossing-chart__lead {
+  margin-bottom: 0.45rem;
+}
+
+.crossing-chart__lead strong {
+  color: #ef4444;
+}
+
+.crossing-chart__meta {
+  margin-top: 0.4rem;
+  opacity: 0.7;
+}
+
+.crossing-chart__error {
+  color: #ef4444;
+}
+
+.crossing-chart__list {
+  display: grid;
+  gap: 0.28rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crossing-chart__row {
+  display: grid;
+  grid-template-columns: 8.4rem minmax(4rem, 1fr) 3.6rem;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.12rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.crossing-chart__name {
+  overflow: hidden;
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crossing-chart__row.is-slowest .crossing-chart__name {
+  font-weight: 750;
+  color: #ef4444;
+}
+
+.crossing-chart__track {
+  display: block;
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.crossing-chart__bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #22c55e;
+}
+
+.crossing-chart__row.is-slowest .crossing-chart__bar {
+  background: #ef4444;
+}
+
+.crossing-chart__wait {
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-align: right;
+}
+
+.crossing-chart__row.is-selected .crossing-chart__name {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.crossing-marker {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.crossing-marker__pin {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #64748b;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.crossing-marker.is-selected .crossing-marker__pin {
+  background: var(--location);
+}
+
+.crossing-marker__wait {
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.user-location {
+  position: relative;
+}
+
+.user-location__dot,
+.user-location__pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.user-location__dot {
+  width: 14px;
+  height: 14px;
+  background: var(--location);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--location) 35%, transparent);
+}
+
+.user-location__pulse {
+  width: 24px;
+  height: 24px;
+  background: var(--location-soft);
+  animation: pulse 1.8s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2.2);
+    opacity: 0;
+  }
+}
