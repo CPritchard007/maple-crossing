@@ -49,7 +49,7 @@ export function createMap(container: HTMLElement): MapController {
     attributionControl: true,
   }).setView(DEFAULT_VIEW, DEFAULT_ZOOM);
 
-  map.attributionControl.setPosition("bottomleft");
+  map.attributionControl.setPosition("bottomright");
 
   map.createPane("baseTiles");
   const basePane = map.getPane("baseTiles");

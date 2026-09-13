@@ -75,6 +75,87 @@ export function crossingById(id: string): CrossingDefinition | undefined {
   return CROSSINGS.find((crossing) => crossing.id === id);
 }
 
+function easternParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+
+  const read = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value ?? "0");
+
+  return {
+    year: read("year"),
+    month: read("month"),
+    day: read("day"),
+    hour: read("hour"),
+    minute: read("minute"),
+    second: read("second"),
+  };
+}
+
+export function parseCbpUpdatedAt(date: string, time: string): Date | null {
+  const dateMatch = date.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  const timeMatch = time.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+
+  if (!dateMatch || !timeMatch) {
+    return null;
+  }
+
+  const year = Number(dateMatch[1]);
+  const month = Number(dateMatch[2]);
+  const day = Number(dateMatch[3]);
+  const hour = Number(timeMatch[1]);
+  const minute = Number(timeMatch[2]);
+  const second = Number(timeMatch[3] ?? "0");
+
+  if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 59) {
+    return null;
+  }
+
+  const asUtc = Date.UTC(year, month - 1, day, hour, minute, second);
+  const shown = easternParts(new Date(asUtc));
+  const shownAsUtc = Date.UTC(shown.year, shown.month - 1, shown.day, shown.hour, shown.minute, shown.second);
+  return new Date(asUtc - (shownAsUtc - asUtc));
+}
+
+export function formatRelativeUpdated(iso: string, now = Date.now()): string {
+  const from = Date.parse(iso);
+  if (!Number.isFinite(from)) {
+    return "";
+  }
+
+  const diffMs = now - from;
+  const elapsed = Math.abs(diffMs);
+  const minutes = Math.floor(elapsed / 60_000);
+  const hours = Math.floor(elapsed / 3_600_000);
+  const days = Math.floor(elapsed / 86_400_000);
+
+  if (diffMs < 0 && elapsed < 120_000) {
+    return "just now";
+  }
+
+  if (minutes < 1) {
+    return "just now";
+  }
+
+  if (minutes < 60) {
+    return minutes === 1 ? "1 minute ago" : `${minutes} minutes ago`;
+  }
+
+  if (hours < 24) {
+    return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
+  }
+
+  return days === 1 ? "1 day ago" : `${days} days ago`;
+}
+
 export function formatMinutes(minutes: number | null): string {
   if (minutes == null) {
     return "—";
@@ -204,9 +285,8 @@ export function parseBorderFeed(xml: string): BorderFeed {
     throw new Error("CBP wait-time feed was not valid XML.");
   }
 
-  const lastUpdated = [textOf(document, "last_updated_date"), textOf(document, "last_updated_time")]
-    .filter(Boolean)
-    .join(" ");
+  const lastUpdated = parseCbpUpdatedAt(textOf(document, "last_updated_date"), textOf(document, "last_updated_time"))
+    ?.toISOString() ?? "";
 
   const crossings: CrossingWait[] = [];
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { crossingChartRows, type CrossingWait } from "../border";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { crossingChartRows, formatRelativeUpdated, type CrossingWait } from "../border";
 
 const props = defineProps<{
   crossings: CrossingWait[];
@@ -14,8 +14,22 @@ const emit = defineEmits<{
   select: [id: string];
 }>();
 
+const now = ref(Date.now());
+let timer = 0;
+
+onMounted(() => {
+  timer = window.setInterval(() => {
+    now.value = Date.now();
+  }, 30_000);
+});
+
+onUnmounted(() => {
+  window.clearInterval(timer);
+});
+
 const rows = computed(() => crossingChartRows(props.crossings));
 const slowest = computed(() => rows.value.find((row) => row.slowest));
+const updatedLabel = computed(() => formatRelativeUpdated(props.lastUpdated, now.value));
 </script>
 
 <template>
@@ -44,6 +58,6 @@ const slowest = computed(() => rows.value.find((row) => row.slowest));
         </button>
       </li>
     </ol>
-    <p v-if="lastUpdated && !error" class="crossing-chart__meta">CBP · {{ lastUpdated }}</p>
+    <p v-if="updatedLabel && !error" class="crossing-chart__meta">Updated {{ updatedLabel }}</p>
   </aside>
 </template>

@@ -106,49 +106,48 @@ body {
   background: color-mix(in srgb, var(--location) 16%, transparent);
 }
 
-.leaflet-bottom.leaflet-left {
-  display: flex;
-  flex-direction: column-reverse;
-}
-
 .follow-link {
   position: absolute;
   left: 0.5rem;
-  bottom: 0.15rem;
+  bottom: 0.5rem;
   z-index: 500;
-  padding: 0 0.15rem 0.2rem;
-  color: #0078a8;
-  font-size: 11px;
-  line-height: 1.4;
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--control-bg) 92%, transparent);
+  color: var(--control-ink);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
 }
 
 .follow-link:hover,
 .follow-link:focus-visible {
-  color: #23a6e5;
+  color: var(--location);
 }
 
 .follow-link.is-active {
   color: var(--location);
-  font-weight: 650;
 }
 
-[data-theme="dark"] .follow-link {
-  color: #8fd4b4;
-}
-
-[data-theme="dark"] .follow-link.is-active {
-  color: var(--location);
-}
-
-.leaflet-bottom.leaflet-left .leaflet-control-attribution {
-  margin-left: 4.75rem;
+.follow-link__icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .crossing-chart {
   position: absolute;
-  left: 0.5rem;
+  right: 0.5rem;
   bottom: 1.85rem;
   z-index: 500;
   width: min(22.5rem, calc(100% - 4.5rem));
