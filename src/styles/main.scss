@@ -121,23 +121,23 @@ body {
 }
 
 .fx-chip.is-good {
-  background: color-mix(in srgb, #16a34a 18%, var(--control-bg));
-  color: #15803d;
+  background: #16a34a;
+  color: #f0fdf4;
 }
 
 .fx-chip.is-bad {
-  background: color-mix(in srgb, #ef4444 18%, var(--control-bg));
-  color: #b91c1c;
+  background: #dc2626;
+  color: #fef2f2;
 }
 
 [data-theme="dark"] .fx-chip.is-good {
-  background: color-mix(in srgb, #22c55e 22%, var(--control-bg));
-  color: #86efac;
+  background: #16a34a;
+  color: #f0fdf4;
 }
 
 [data-theme="dark"] .fx-chip.is-bad {
-  background: color-mix(in srgb, #ef4444 24%, var(--control-bg));
-  color: #fca5a5;
+  background: #dc2626;
+  color: #fef2f2;
 }
 
 .fx-chip__pair {
