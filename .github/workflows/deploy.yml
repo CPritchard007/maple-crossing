@@ -15,6 +15,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VITE_TOMTOM_API_KEY: ${{ secrets.VITE_TOMTOM_API_KEY || vars.VITE_TOMTOM_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -28,10 +30,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare Vite env
+        run: |
+          if [ -z "${VITE_TOMTOM_API_KEY}" ]; then
+            echo "::warning::VITE_TOMTOM_API_KEY is empty. Add it as a repository secret or variable under Settings → Secrets and variables → Actions. Environment secrets are ignored unless this job sets environment:."
+          else
+            echo "VITE_TOMTOM_API_KEY is present (${#VITE_TOMTOM_API_KEY} characters)."
+          fi
+          printf 'VITE_TOMTOM_API_KEY=%s\n' "${VITE_TOMTOM_API_KEY}" > .env.production
+
       - name: Build
         run: npm run build
-        env:
-          VITE_TOMTOM_API_KEY: ${{ secrets.VITE_TOMTOM_API_KEY }}
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
