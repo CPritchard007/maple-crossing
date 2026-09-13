@@ -173,9 +173,7 @@ export function createMap(container: HTMLElement): MapController {
         return;
       }
 
-      if (!map.getBounds().pad(-0.25).contains(latLng)) {
-        map.panTo(latLng);
-      }
+      map.panTo(latLng);
     },
     async enableTrafficIfAvailable(dark: boolean) {
       flowLayer.setUrl(flowTileUrl(dark));

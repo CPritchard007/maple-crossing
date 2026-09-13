@@ -11,6 +11,7 @@ const props = defineProps<{
   location: UserLocation | null;
   theme: Theme;
   view: AppView;
+  followUser: boolean;
   selectedCrossingId: string | null;
   crossings: CrossingWait[];
 }>();
@@ -61,7 +62,7 @@ function applyView(): void {
     return;
   }
 
-  map.setFollowUser(true);
+  map.setFollowUser(props.followUser);
   map.clearCrossingMarkers();
   map.focusHome(props.location);
 }
@@ -75,7 +76,7 @@ onMounted(async () => {
   map.setIncidentTheme(props.theme === "dark");
 
   if (props.location) {
-    map.setUserLocation(props.location, { follow: props.view === "map" });
+    map.setUserLocation(props.location, { follow: props.followUser });
   }
 
   await nextTick();
@@ -96,7 +97,7 @@ watch(
   () => props.location,
   (location) => {
     if (location) {
-      map?.setUserLocation(location, { follow: props.view === "map" });
+      map?.setUserLocation(location, { follow: props.followUser });
     }
   },
 );
@@ -105,6 +106,16 @@ watch(
   () => [props.view, props.selectedCrossingId] as const,
   () => {
     applyView();
+  },
+);
+
+watch(
+  () => props.followUser,
+  (follow) => {
+    map?.setFollowUser(follow);
+    if (follow && props.location) {
+      map?.focusHome(props.location);
+    }
   },
 );
 

@@ -111,10 +111,45 @@ body {
   flex-direction: column-reverse;
 }
 
+.follow-link {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.15rem;
+  z-index: 500;
+  padding: 0 0.15rem 0.2rem;
+  color: #0078a8;
+  font-size: 11px;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.follow-link:hover,
+.follow-link:focus-visible {
+  color: #23a6e5;
+}
+
+.follow-link.is-active {
+  color: var(--location);
+  font-weight: 650;
+}
+
+[data-theme="dark"] .follow-link {
+  color: #8fd4b4;
+}
+
+[data-theme="dark"] .follow-link.is-active {
+  color: var(--location);
+}
+
+.leaflet-bottom.leaflet-left .leaflet-control-attribution {
+  margin-left: 4.75rem;
+}
+
 .crossing-chart {
   position: absolute;
   left: 0.5rem;
-  bottom: 1.7rem;
+  bottom: 1.85rem;
   z-index: 500;
   width: min(22.5rem, calc(100% - 4.5rem));
   padding: 0.65rem 0.75rem 0.55rem;
