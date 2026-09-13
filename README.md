@@ -21,8 +21,8 @@ cp .env.example .env
 
 ## Deploy
 
-Pushes to `main` build and publish through GitHub Actions.
+Pushes to `main` run GitHub Actions, build the app, and publish `dist` to the `gh-pages` branch.
 
-1. Enable **Settings → Pages → Source: GitHub Actions**.
-2. Push this repository to GitHub.
-3. The site will be available at `https://<user>.github.io/maple-crossing/`.
+1. Add a repository secret named `VITE_TOMTOM_API_KEY` if you want TomTom tiles in production.
+2. Enable **Settings → Pages → Source: Deploy from a branch**, then choose `gh-pages` / `/ (root)`.
+3. Push to `main`. The site will be at `https://<user>.github.io/maple-crossing/`.
