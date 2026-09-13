@@ -148,11 +148,11 @@ export function crossingChartRows(waits: CrossingWait[]): CrossingChartRow[] {
   }));
 }
 
-function textOf(parent: ParentNode, tag: string): string {
+function textOf(parent: Document | Element, tag: string): string {
   return parent.getElementsByTagName(tag)[0]?.textContent?.trim() ?? "";
 }
 
-function childOf(parent: ParentNode, tag: string): Element | null {
+function childOf(parent: Document | Element, tag: string): Element | null {
   return parent.getElementsByTagName(tag)[0] ?? null;
 }
 
