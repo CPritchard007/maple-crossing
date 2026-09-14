@@ -4,12 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: GitHub Environment that holds VITE_TOMTOM_API_KEY
-        required: false
-        default: github-pages
-        type: string
 
 permissions:
   contents: write
@@ -21,7 +15,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'github-pages' }}
     env:
       VITE_TOMTOM_API_KEY: ${{ secrets.VITE_TOMTOM_API_KEY || secrets.TOMTOM_API_KEY || vars.VITE_TOMTOM_API_KEY || vars.TOMTOM_API_KEY }}
     steps:
@@ -40,7 +33,7 @@ jobs:
       - name: Prepare Vite env
         run: |
           if [ -z "${VITE_TOMTOM_API_KEY}" ]; then
-            echo "::error::VITE_TOMTOM_API_KEY is empty. Add it under Settings → Environments → github-pages, or Settings → Secrets and variables → Actions, then re-run this workflow."
+            echo "::error::VITE_TOMTOM_API_KEY is empty. Add it as a repository secret under Settings → Secrets and variables → Actions. Do not use the github-pages environment — GitHub Pages blocks main from deploying there."
             exit 1
           fi
           echo "VITE_TOMTOM_API_KEY is present (${#VITE_TOMTOM_API_KEY} characters)."
