@@ -23,9 +23,9 @@ cp .env.example .env
 
 Pushes to `main` run GitHub Actions, build the app, and publish `dist` to the `gh-pages` branch.
 
-1. Add `VITE_TOMTOM_API_KEY` if you want TomTom tiles in production:
-   - **Settings → Secrets and variables → Actions → Repository secrets** (preferred), or
-   - the **Variables** tab on that same page.
-   - Do **not** put it under **Environments** / Environment secrets. Those are only visible to jobs that set `environment:`, and this workflow does not.
+1. Add `VITE_TOMTOM_API_KEY` if you want TomTom tiles in production. This workflow reads the `github-pages` environment, so either place works:
+   - **Settings → Environments → github-pages → Environment secrets**, or
+   - **Settings → Secrets and variables → Actions → Repository secrets**.
+   - If you stored it on a different environment, run **Actions → Deploy to GitHub Pages → Run workflow** and type that environment name.
 2. Enable **Settings → Pages → Source: Deploy from a branch**, then choose `gh-pages` / `/ (root)`.
 3. Push to `main`. The site will be at `https://<user>.github.io/maple-crossing/`.

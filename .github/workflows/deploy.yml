@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment that holds VITE_TOMTOM_API_KEY
+        required: false
+        default: github-pages
+        type: string
 
 permissions:
   contents: write
@@ -15,8 +21,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'github-pages' }}
     env:
-      VITE_TOMTOM_API_KEY: ${{ secrets.VITE_TOMTOM_API_KEY || vars.VITE_TOMTOM_API_KEY }}
+      VITE_TOMTOM_API_KEY: ${{ secrets.VITE_TOMTOM_API_KEY || secrets.TOMTOM_API_KEY || vars.VITE_TOMTOM_API_KEY || vars.TOMTOM_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -33,14 +40,27 @@ jobs:
       - name: Prepare Vite env
         run: |
           if [ -z "${VITE_TOMTOM_API_KEY}" ]; then
-            echo "::warning::VITE_TOMTOM_API_KEY is empty. Add it as a repository secret or variable under Settings → Secrets and variables → Actions. Environment secrets are ignored unless this job sets environment:."
-          else
-            echo "VITE_TOMTOM_API_KEY is present (${#VITE_TOMTOM_API_KEY} characters)."
+            echo "::error::VITE_TOMTOM_API_KEY is empty. Add it under Settings → Environments → github-pages, or Settings → Secrets and variables → Actions, then re-run this workflow."
+            exit 1
           fi
+          echo "VITE_TOMTOM_API_KEY is present (${#VITE_TOMTOM_API_KEY} characters)."
           printf 'VITE_TOMTOM_API_KEY=%s\n' "${VITE_TOMTOM_API_KEY}" > .env.production
 
       - name: Build
         run: npm run build
+
+      - name: Confirm TomTom key was baked in
+        run: |
+          node <<'NODE'
+          const { readdirSync, readFileSync } = require("node:fs");
+          const files = readdirSync("dist/assets").filter((name) => name.endsWith(".js"));
+          const bundle = files.map((name) => readFileSync(`dist/assets/${name}`, "utf8")).join("\n");
+          if (!bundle.includes("maps/orbis/display")) {
+            console.error("Vite built without TomTom display tiles. The key did not reach import.meta.env.VITE_TOMTOM_API_KEY.");
+            process.exit(1);
+          }
+          console.log("TomTom display tiles are present in the production bundle.");
+          NODE
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
