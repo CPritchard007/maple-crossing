@@ -225,8 +225,34 @@ body {
 }
 
 .crossing-chart__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 0.4rem;
   opacity: 0.7;
+}
+
+.crossing-chart__spacer {
+  flex: 1 1 auto;
+  min-width: 0.75rem;
+}
+
+.crossing-chart__direction {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.16em;
+  cursor: pointer;
+}
+
+.crossing-chart__direction:hover,
+.crossing-chart__direction:focus-visible {
+  color: var(--location);
+  text-decoration-color: currentColor;
 }
 
 .crossing-chart__error {

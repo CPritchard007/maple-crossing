@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { crossingChartRows, formatRelativeUpdated, type CrossingWait } from "../border";
+import {
+  crossingChartRows,
+  directionArrowLabel,
+  directionLabel,
+  formatRelativeUpdated,
+  type CrossingWait,
+  type TravelDirection,
+} from "../border";
 
 const props = defineProps<{
   crossings: CrossingWait[];
+  direction: TravelDirection;
   selectedId: string | null;
   lastUpdated: string;
   error: string;
@@ -12,6 +20,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [id: string];
+  toggleDirection: [];
 }>();
 
 const now = ref(Date.now());
@@ -30,16 +39,18 @@ onUnmounted(() => {
 const rows = computed(() => crossingChartRows(props.crossings));
 const slowest = computed(() => rows.value.find((row) => row.slowest));
 const updatedLabel = computed(() => formatRelativeUpdated(props.lastUpdated, now.value));
+const heading = computed(() => directionLabel(props.direction));
+const arrowLabel = computed(() => directionArrowLabel(props.direction));
 </script>
 
 <template>
-  <aside class="crossing-chart" aria-label="Windsor–Detroit wait times">
+  <aside class="crossing-chart" :aria-label="`${heading} wait times`">
     <p v-if="error" class="crossing-chart__error">{{ error }}</p>
     <p v-else-if="slowest" class="crossing-chart__lead">
       Slowest now: <strong>{{ slowest.name }}</strong>
     </p>
     <p v-else class="crossing-chart__lead">
-      {{ loading ? "Loading wait times…" : "Into the U.S." }}
+      {{ loading ? "Loading wait times…" : heading }}
     </p>
     <ol class="crossing-chart__list">
       <li v-for="row in rows" :key="row.id">
@@ -58,6 +69,17 @@ const updatedLabel = computed(() => formatRelativeUpdated(props.lastUpdated, now
         </button>
       </li>
     </ol>
-    <p v-if="updatedLabel && !error" class="crossing-chart__meta">Updated {{ updatedLabel }}</p>
+    <p v-if="!error" class="crossing-chart__meta">
+      <span v-if="updatedLabel">Updated {{ updatedLabel }}</span>
+      <span class="crossing-chart__spacer" aria-hidden="true"></span>
+      <button
+        type="button"
+        class="crossing-chart__direction"
+        :aria-label="`Switch wait times to ${directionLabel(props.direction === 'into_us' ? 'into_canada' : 'into_us')}`"
+        @click="emit('toggleDirection')"
+      >
+        {{ arrowLabel }}
+      </button>
+    </p>
   </aside>
 </template>

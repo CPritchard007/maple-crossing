@@ -88,6 +88,17 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /^https:\/\/transitbarometer\.com\/api\/.*/i,
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "border-waits",
+              expiration: {
+                maxEntries: 4,
+                maxAgeSeconds: 60 * 15,
+              },
+            },
+          },
         ],
       },
     }),
@@ -110,6 +121,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/frankfurter/, ""),
       },
+      "/transit-barometer": {
+        target: "https://transitbarometer.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/transit-barometer/, ""),
+      },
     },
   },
   preview: {
@@ -123,6 +139,11 @@ export default defineConfig({
         target: "https://api.frankfurter.dev",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/frankfurter/, ""),
+      },
+      "/transit-barometer": {
+        target: "https://transitbarometer.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/transit-barometer/, ""),
       },
     },
   },

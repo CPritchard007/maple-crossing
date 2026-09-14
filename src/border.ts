@@ -1,4 +1,5 @@
 export type AppView = "map" | "border";
+export type TravelDirection = "into_us" | "into_canada";
 
 export interface LaneWait {
   status: string;
@@ -9,7 +10,7 @@ export interface LaneWait {
 
 export interface CrossingDefinition {
   id: string;
-  portNumber: string;
+  slug: string;
   name: string;
   latitude: number;
   longitude: number;
@@ -18,20 +19,14 @@ export interface CrossingDefinition {
 
 export interface CrossingWait extends CrossingDefinition {
   portStatus: string;
-  hours: string;
-  date: string;
   passengerStandard: LaneWait | null;
-  passengerNexus: LaneWait | null;
-  passengerReady: LaneWait | null;
-  commercialStandard: LaneWait | null;
-  commercialFast: LaneWait | null;
-  pedestrianStandard: LaneWait | null;
-  notice: string;
   updateTime: string;
+  direction: TravelDirection;
 }
 
 export interface BorderFeed {
   lastUpdated: string;
+  direction: TravelDirection;
   crossings: CrossingWait[];
 }
 
@@ -41,7 +36,7 @@ export const BORDER_ZOOM = 12;
 export const CROSSINGS: CrossingDefinition[] = [
   {
     id: "ambassador",
-    portNumber: "380001",
+    slug: "ambassador-bridge",
     name: "Ambassador Bridge",
     latitude: 42.31197,
     longitude: -83.07405,
@@ -49,7 +44,7 @@ export const CROSSINGS: CrossingDefinition[] = [
   },
   {
     id: "gordie-howe",
-    portNumber: "380102",
+    slug: "gordie-howe-international-bridge",
     name: "Gordie Howe International Bridge",
     latitude: 42.2868,
     longitude: -83.0962,
@@ -57,7 +52,7 @@ export const CROSSINGS: CrossingDefinition[] = [
   },
   {
     id: "windsor-tunnel",
-    portNumber: "380002",
+    slug: "windsor-and-detroit-tunnel",
     name: "Windsor Tunnel",
     latitude: 42.3246,
     longitude: -83.0403,
@@ -65,64 +60,62 @@ export const CROSSINGS: CrossingDefinition[] = [
   },
 ];
 
-const CBP_XML_URL = "https://bwt.cbp.gov/xml/bwt.xml";
+const BAROMETER_URL = "https://transitbarometer.com/api/border.json";
 
 export function borderFeedUrl(): string {
-  return import.meta.env.DEV ? "/cbp-bwt/xml/bwt.xml" : CBP_XML_URL;
+  return import.meta.env.DEV ? "/transit-barometer/api/border.json" : BAROMETER_URL;
 }
 
 export function crossingById(id: string): CrossingDefinition | undefined {
   return CROSSINGS.find((crossing) => crossing.id === id);
 }
 
-function easternParts(date: Date) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(date);
-
-  const read = (type: Intl.DateTimeFormatPartTypes) =>
-    Number(parts.find((part) => part.type === type)?.value ?? "0");
-
-  return {
-    year: read("year"),
-    month: read("month"),
-    day: read("day"),
-    hour: read("hour"),
-    minute: read("minute"),
-    second: read("second"),
-  };
+export function directionLabel(direction: TravelDirection): string {
+  return direction === "into_canada" ? "Into Canada" : "Into the U.S.";
 }
 
-export function parseCbpUpdatedAt(date: string, time: string): Date | null {
-  const dateMatch = date.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  const timeMatch = time.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+export function directionArrowLabel(direction: TravelDirection): string {
+  return direction === "into_canada" ? "U.S. → Canada" : "Canada → U.S.";
+}
 
-  if (!dateMatch || !timeMatch) {
-    return null;
+export function travelDirectionFromLocation(
+  location: { latitude: number; longitude: number } | null | undefined,
+): TravelDirection {
+  if (!location) {
+    return "into_us";
   }
 
-  const year = Number(dateMatch[1]);
-  const month = Number(dateMatch[2]);
-  const day = Number(dateMatch[3]);
-  const hour = Number(timeMatch[1]);
-  const minute = Number(timeMatch[2]);
-  const second = Number(timeMatch[3] ?? "0");
+  return isLikelyInCanada(location.latitude, location.longitude) ? "into_us" : "into_canada";
+}
 
-  if (month < 1 || month > 12 || day < 1 || day > 31 || hour > 23 || minute > 59 || second > 59) {
-    return null;
+export function isLikelyInCanada(lat: number, lng: number): boolean {
+  if (lng >= -83.35 && lng <= -82.85 && lat >= 42.15 && lat <= 42.45) {
+    return lat < detroitRiverLatitude(lng);
   }
 
-  const asUtc = Date.UTC(year, month - 1, day, hour, minute, second);
-  const shown = easternParts(new Date(asUtc));
-  const shownAsUtc = Date.UTC(shown.year, shown.month - 1, shown.day, shown.hour, shown.minute, shown.second);
-  return new Date(asUtc - (shownAsUtc - asUtc));
+  if (lng > -82.85 && lng < -66 && lat > 41.6) {
+    if (lat < 43.3 && lng > -79.08) {
+      return false;
+    }
+
+    if (lat >= 41.7 && lng <= -79.08) {
+      return true;
+    }
+
+    return lat >= 45;
+  }
+
+  return lat >= 49;
+}
+
+function detroitRiverLatitude(lng: number): number {
+  if (lng <= -83.074) {
+    const t = (lng + 83.096) / 0.022;
+    return 42.29 + t * 0.027;
+  }
+
+  const t = (lng + 83.074) / 0.034;
+  return 42.317 + t * 0.007;
 }
 
 export function formatRelativeUpdated(iso: string, now = Date.now()): string {
@@ -177,7 +170,7 @@ export function shortWait(lane: LaneWait | null | undefined): string {
     return "Closed";
   }
 
-  if (!lane.status || /^n\/a$/i.test(lane.status)) {
+  if (!lane.status || /^n\/a$/i.test(lane.status) || /^unknown$/i.test(lane.status)) {
     return "N/A";
   }
 
@@ -186,7 +179,7 @@ export function shortWait(lane: LaneWait | null | undefined): string {
 
 export function passengerWaitMinutes(crossing?: CrossingWait): number | null {
   const lane = crossing?.passengerStandard;
-  if (!lane || /closed/i.test(lane.status) || /^n\/a$/i.test(lane.status)) {
+  if (!lane || /closed/i.test(lane.status) || /^n\/a$/i.test(lane.status) || /^unknown$/i.test(lane.status)) {
     return null;
   }
 
@@ -229,107 +222,97 @@ export function crossingChartRows(waits: CrossingWait[]): CrossingChartRow[] {
   }));
 }
 
-function textOf(parent: Document | Element, tag: string): string {
-  return parent.getElementsByTagName(tag)[0]?.textContent?.trim() ?? "";
+interface BarometerLane {
+  text?: string;
+  minutes?: number | null;
+  kind?: string;
+  severity?: string;
 }
 
-function childOf(parent: Document | Element, tag: string): Element | null {
-  return parent.getElementsByTagName(tag)[0] ?? null;
+interface BarometerDirection {
+  cars?: BarometerLane | null;
+  trucks?: BarometerLane | null;
+  status?: string | null;
+  updated?: string | null;
+  source?: string;
 }
 
-function parseOptionalInt(value: string): number | null {
-  if (!value) {
+interface BarometerCrossing {
+  slug?: string;
+  name?: string;
+  into_canada?: BarometerDirection | null;
+  into_us?: BarometerDirection | null;
+}
+
+export interface BarometerFeed {
+  generated_at?: string;
+  generated_at_utc?: string;
+  crossings?: BarometerCrossing[];
+}
+
+function readLane(direction: BarometerDirection | null | undefined): LaneWait | null {
+  const cars = direction?.cars;
+  if (!cars) {
     return null;
   }
 
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function readLane(parent: Element | null, tag: string): LaneWait | null {
-  const node = parent ? childOf(parent, tag) : null;
-  if (!node) {
-    return null;
-  }
-
-  const status = textOf(node, "operational_status");
-  if (!status) {
-    return null;
-  }
+  const kind = cars.kind?.trim() ?? "";
+  const status = /closed/i.test(kind) || /closed/i.test(cars.text ?? "")
+    ? "Closed"
+    : kind || direction?.status || cars.text || "Open";
 
   return {
     status,
-    updateTime: textOf(node, "update_time"),
-    delayMinutes: parseOptionalInt(textOf(node, "delay_minutes")),
-    lanesOpen: parseOptionalInt(textOf(node, "lanes_open")),
+    updateTime: direction?.updated?.trim() ?? "",
+    delayMinutes: typeof cars.minutes === "number" && Number.isFinite(cars.minutes) ? cars.minutes : null,
+    lanesOpen: null,
   };
 }
 
-function cleanNotice(value: string): string {
-  return value.replace(/^<!\[CDATA\[/i, "").replace(/\]\]>$/i, "").trim();
-}
-
-function matchCrossing(port: Element): CrossingDefinition | undefined {
-  const portNumber = textOf(port, "port_number");
-  const crossingName = textOf(port, "crossing_name").replace(/\s+/g, " ").trim().toLowerCase();
-
-  return (
-    CROSSINGS.find((crossing) => crossing.portNumber === portNumber) ??
-    CROSSINGS.find((crossing) => crossingName.includes(crossing.name.toLowerCase().replace(" international", "")))
-  );
-}
-
-export function parseBorderFeed(xml: string): BorderFeed {
-  const document = new DOMParser().parseFromString(xml, "application/xml");
-  if (document.querySelector("parsererror")) {
-    throw new Error("CBP wait-time feed was not valid XML.");
+function parseUpdatedAt(value: string | undefined): string {
+  if (!value) {
+    return "";
   }
 
-  const lastUpdated = parseCbpUpdatedAt(textOf(document, "last_updated_date"), textOf(document, "last_updated_time"))
-    ?.toISOString() ?? "";
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : "";
+}
 
-  const crossings: CrossingWait[] = [];
+export function crossingsFromFeed(feed: BarometerFeed, direction: TravelDirection): CrossingWait[] {
+  const bySlug = new Map((feed.crossings ?? []).map((crossing) => [crossing.slug, crossing]));
 
-  for (const port of Array.from(document.getElementsByTagName("port"))) {
-    const definition = matchCrossing(port);
-    if (!definition) {
-      continue;
-    }
+  return CROSSINGS.map((definition) => {
+    const remote = bySlug.get(definition.slug);
+    const headed = direction === "into_canada" ? remote?.into_canada : remote?.into_us;
+    const passengerStandard = readLane(headed);
 
-    const passenger = childOf(port, "passenger_vehicle_lanes");
-    const commercial = childOf(port, "commercial_vehicle_lanes");
-    const pedestrian = childOf(port, "pedestrian_lanes");
-    const passengerStandard = readLane(passenger, "standard_lanes");
-    const commercialStandard = readLane(commercial, "standard_lanes");
-
-    crossings.push({
+    return {
       ...definition,
-      portStatus: textOf(port, "port_status"),
-      hours: textOf(port, "hours"),
-      date: textOf(port, "date"),
+      portStatus: headed?.status?.trim() || (passengerStandard ? "Open" : ""),
       passengerStandard,
-      passengerNexus: readLane(passenger, "NEXUS_SENTRI_lanes"),
-      passengerReady: readLane(passenger, "ready_lanes"),
-      commercialStandard,
-      commercialFast: readLane(commercial, "FAST_lanes"),
-      pedestrianStandard: readLane(pedestrian, "standard_lanes"),
-      notice: cleanNotice(textOf(port, "construction_notice")),
-      updateTime: passengerStandard?.updateTime || commercialStandard?.updateTime || "",
-    });
-  }
-
-  crossings.sort(
-    (left, right) => CROSSINGS.findIndex((item) => item.id === left.id) - CROSSINGS.findIndex((item) => item.id === right.id),
-  );
-
-  return { lastUpdated, crossings };
+      updateTime: passengerStandard?.updateTime ?? "",
+      direction,
+    };
+  });
 }
 
-export async function fetchBorderFeed(): Promise<BorderFeed> {
+export function parseBarometerFeed(feed: BarometerFeed, direction: TravelDirection): BorderFeed {
+  return {
+    lastUpdated: parseUpdatedAt(feed.generated_at_utc) || parseUpdatedAt(feed.generated_at),
+    direction,
+    crossings: crossingsFromFeed(feed, direction),
+  };
+}
+
+export async function fetchBarometerFeed(): Promise<BarometerFeed> {
   const response = await fetch(borderFeedUrl(), { cache: "no-store" });
   if (!response.ok) {
-    throw new Error(`CBP wait-time feed returned ${response.status}.`);
+    throw new Error(`Transit Barometer returned ${response.status}.`);
   }
 
-  return parseBorderFeed(await response.text());
+  return (await response.json()) as BarometerFeed;
+}
+
+export async function fetchBorderFeed(direction: TravelDirection = "into_us"): Promise<BorderFeed> {
+  return parseBarometerFeed(await fetchBarometerFeed(), direction);
 }

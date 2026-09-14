@@ -15,7 +15,7 @@ import type { TrafficAvailability } from "./traffic";
 const toast = useToast();
 const { theme, toggleTheme } = useTheme();
 const { location, initLocation, requestLocationAccess } = useUserLocation();
-const { crossings, lastUpdated, error, loading } = useBorderWaitTimes();
+const { crossings, direction, lastUpdated, error, loading, toggleDirection } = useBorderWaitTimes(location);
 const view = ref<AppView>("map");
 const selectedCrossingId = ref<string | null>(null);
 const followingUser = ref(false);
@@ -105,11 +105,13 @@ onMounted(() => {
       </button>
       <CrossingWaitChart
         :crossings="crossings"
+        :direction="direction"
         :selected-id="selectedCrossingId"
         :last-updated="lastUpdated"
         :error="error"
         :loading="loading"
         @select="selectCrossing"
+        @toggle-direction="toggleDirection"
       />
     </main>
     <Toast position="top-center" />

@@ -11,7 +11,7 @@ npm run dev
 
 The app asks for location access, then places you on the map.
 
-A chart in the lower-left corner shows live U.S.-bound wait times for the Ambassador Bridge, Gordie Howe International Bridge, and Windsor Tunnel from the [CBP Border Wait Times XML](https://bwt.cbp.gov/xml/bwt.xml). The slowest crossing is highlighted. Click a row to fly the map there.
+A chart in the lower-left corner shows live wait times for the Ambassador Bridge, Gordie Howe International Bridge, and Windsor Tunnel from [Transit Barometer](https://transitbarometer.com/api/border.json). If you are in Canada it shows Canada → U.S.; if you are in the U.S. it shows U.S. → Canada. The slowest crossing is highlighted. Click a row to fly the map there.
 
 To show TomTom map tiles and traffic, copy `.env.example` to `.env` and add a TomTom API key:
 
