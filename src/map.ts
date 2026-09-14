@@ -84,7 +84,7 @@ export function createMap(container: HTMLElement): MapController {
   const flowLayer = L.tileLayer(flowTileUrl(false), {
     pane: "trafficFlow",
     maxZoom: 22,
-    opacity: 0.6,
+    opacity: 0.5,
   });
 
   const incidentLayer = L.tileLayer(incidentTileUrl(false), {
