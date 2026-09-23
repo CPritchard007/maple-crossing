@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f1ea" />
+    <meta name="description" content="Live Windsor–Detroit border wait times and maps." />
+    <link rel="canonical" href="https://cpritchard007.github.io/maple-crossing/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Maple Crossing" />
+    <meta property="og:title" content="Maple Crossing" />
+    <meta property="og:description" content="Live Windsor–Detroit border wait times and maps." />
+    <meta property="og:url" content="https://cpritchard007.github.io/maple-crossing/" />
+    <meta property="og:image" content="https://cpritchard007.github.io/maple-crossing/social/maple-crossing.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1672" />
+    <meta property="og:image:height" content="941" />
+    <meta property="og:image:alt" content="Maple Crossing — red maple leaf with a white crossing path and red lettering on white." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Maple Crossing" />
+    <meta name="twitter:description" content="Live Windsor–Detroit border wait times and maps." />
+    <meta name="twitter:image" content="https://cpritchard007.github.io/maple-crossing/social/maple-crossing.png" />
+    <meta name="twitter:image:alt" content="Maple Crossing — red maple leaf with a white crossing path and red lettering on white." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Maple Crossing" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="icon" href="/maple-crossing/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/maple-crossing/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/maple-crossing/apple-touch-icon.png" />
+    <title>Maple Crossing</title>
+    <script>
+      (() => {
+        const stored = localStorage.getItem("maple-crossing-theme");
+        const theme =
+          stored === "dark" || stored === "light"
+            ? stored
+            : matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+    <script type="module" crossorigin src="/maple-crossing/assets/index-DZ6Bk0zs.js"></script>
+    <link rel="stylesheet" crossorigin href="/maple-crossing/assets/index-BC0IRAKz.css">
+  <link rel="manifest" href="/maple-crossing/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/maple-crossing/registerSW.js"></script></head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
