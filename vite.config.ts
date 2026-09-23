@@ -6,9 +6,21 @@ const repository = process.env.GITHUB_REPOSITORY?.split("/")[1];
 const owner = process.env.GITHUB_REPOSITORY?.split("/")[0];
 const isUserSite = Boolean(repository && owner && repository === `${owner}.github.io`);
 
+// Social crawlers need absolute URLs in the initial HTML, including the Pages base path.
+const siteRepository = process.env.GITHUB_REPOSITORY || "CPritchard007/maple-crossing";
+const [siteOwner, siteName] = siteRepository.split("/");
+const sitePath = siteName.toLowerCase() === `${siteOwner}.github.io`.toLowerCase() ? "" : `${siteName}/`;
+const siteUrl = `https://${siteOwner.toLowerCase()}.github.io/${sitePath}`;
+
 export default defineConfig({
   plugins: [
     vue(),
+    {
+      name: "social-preview-metadata",
+      transformIndexHtml(html) {
+        return html.replaceAll("__SITE_URL__", siteUrl);
+      },
+    },
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
